@@ -6,3 +6,6 @@ input/08fd33_4_ultra_short.mp4
 input/08fd33_4_full.mp4
 runs
 output
+*.pt
+*.pkl
+__pycache__
