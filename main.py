@@ -14,6 +14,9 @@ def main():
         video_frames, read_from_stub=True, stub_path=f"stubs/{file_name}.pkl"
     )
 
+    # fill missing ball positions
+    tracks["ball"] = tracker.interpolate_ball_positions(tracks["ball"])
+
     # Assign Player teams
     team_assigner = TeamAssigner()
     team_assigner.assign_team_color(video_frames[0], tracks["players"][0])
