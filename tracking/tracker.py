@@ -36,9 +36,6 @@ class Tracker:
             with open(stub_path, "rb") as f:
                 tracks = pickle.load(f)
 
-            print(len(tracks["players"]))
-            print(len(tracks["referees"]))
-            print(len(tracks["ball"]))
             return tracks
 
         detections = self.detect_frames(frames)
@@ -148,7 +145,9 @@ class Tracker:
         )
 
         cv2.drawContours(frame, [triangle_array], 0, color, cv2.FILLED)
-        cv2.drawContours(frame, [triangle_array], 0, color, -1, (0, 0, 0), 2)
+        cv2.drawContours(frame, [triangle_array], -1, (0, 0, 0), 2)
+
+        return frame
 
     def draw_annotations(self, video_frames, tracks):
         output_video_frames = []
