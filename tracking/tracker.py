@@ -6,6 +6,7 @@ import supervision as sv
 import sys
 import cv2
 import numpy
+import pandas as pd
 
 sys.path.append("../")
 
@@ -17,6 +18,24 @@ class Tracker:
         self.model = YOLO(model_path)
         self.tracker = sv.ByteTrack()
         pass
+
+    def interpolate_ball_positions(self, ball_positions):
+
+        ball_positions = [x.get(1, {}).get("bbox", []) for x in ball_positions]
+        df_ball_positions = pd.DataFrame(
+            ball_positions, columns=["x1", "y1", "x2", "y2"]
+        )
+
+        # interpolate missing values
+        df_ball_positions = df_ball_positions.interpolate()
+
+        df_ball_positions = df_ball_positions.bfill()
+
+        ball_positions = [
+            {1: {"bbox": x}} for x in df_ball_positions.to_numpy().tolist()
+        ]
+
+        return ball_positions
 
     def detect_frames(self, frames):
         batch_size = 20
@@ -36,9 +55,6 @@ class Tracker:
             with open(stub_path, "rb") as f:
                 tracks = pickle.load(f)
 
-            print(len(tracks["players"]))
-            print(len(tracks["referees"]))
-            print(len(tracks["ball"]))
             return tracks
 
         detections = self.detect_frames(frames)
@@ -119,7 +135,7 @@ class Tracker:
                 cv2.FILLED,
             )
 
-            x1_text = x1_rect + 20
+            x1_text = x1_rect + 10
             if track_id > 99:
                 x1_rect -= 10
 
@@ -148,7 +164,9 @@ class Tracker:
         )
 
         cv2.drawContours(frame, [triangle_array], 0, color, cv2.FILLED)
-        cv2.drawContours(frame, [triangle_array], 0, color, -1, (0, 0, 0), 2)
+        cv2.drawContours(frame, [triangle_array], -1, (0, 0, 0), 2)
+
+        return frame
 
     def draw_annotations(self, video_frames, tracks):
         output_video_frames = []
@@ -161,13 +179,17 @@ class Tracker:
             ball_dict = tracks["ball"][frame_num]
 
             for track_id, player in player_dict.items():
-                frame = self.draw_ellipse(frame, player["bbox"], (0, 0, 255), track_id)
+                color = player.get("team_color", (0, 0, 255))
+                frame = self.draw_ellipse(frame, player["bbox"], color, track_id)
 
             for track_id, referee in referee_dict.items():
                 frame = self.draw_ellipse(frame, referee["bbox"], (0, 255, 0), track_id)
 
             for _, ball in ball_dict.items():
-                frame = self.draw_triangle(frame, ball["bbox"], (255, 0, 0))
+                try:
+                    frame = self.draw_triangle(frame, ball["bbox"], (255, 0, 0))
+                except:
+                    print(ball)
 
             output_video_frames.append(frame)
             # Ball pointer
