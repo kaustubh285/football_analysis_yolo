@@ -1,4 +1,4 @@
-from utils import read_video, save_video
+from utils import read_video, save_video, save_cropped_img
 from tracking import Tracker
 
 
@@ -9,6 +9,8 @@ def main():
     tracks = tracker.get_object_trac(
         video_frames, read_from_stub=True, stub_path="stubs/track_stub.pkl"
     )
+
+    save_cropped_img(tracks, video_frames)
 
     output_video_frames = tracker.draw_annotations(video_frames, tracks)
     save_video(output_video_frames, fps, "output/output2.avi")
