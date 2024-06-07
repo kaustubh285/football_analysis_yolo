@@ -50,10 +50,12 @@ class Tracker:
 
             detection_supervision = sv.Detections.from_ultralytics(detection)
 
+            """
             # Convert "goalkeeper" to "player"
             for idx, class_id in enumerate(detection_supervision.class_id):
                 if cls_names[class_id] == "goalkeeper":
                     detection_supervision.class_id[idx] = cls_names_inv["player"]
+            """
 
             # Track obj
             detections_with_tracks = self.tracker.update_with_detections(
@@ -84,59 +86,6 @@ class Tracker:
                 pickle.dump(tracks, f)
 
         return tracks
-
-    def get_object_tracks(self, frames, read_from_stub=False, stub_path=None):
-        print("in get_object_tracks")
-        detections = self.detect_frames(frames)
-
-        tracks = {"players": [], "referees": [], "ball": []}
-
-        for frame_num, detection in enumerate(detections):
-            cls_names = detection.names
-            cls_names_inv = {v: k for k, v in cls_names.items()}
-
-            detection_supervision = sv.Detections.from_ultralytics(detection)
-
-            for obj_ind, class_id in enumerate(detection_supervision.class_id):
-                if cls_names[class_id] == "goalkeeper":
-                    print("-------FOUND GOALKEEPER_-------")
-                    detection_supervision.class_id[obj_ind] == cls_names_inv["player"]
-
-            # Track objects
-            detection_with_tracks = self.tracker.update_with_detections(
-                detection_supervision
-            )
-
-            tracks["players"].append({})
-            tracks["referees"].append({})
-            tracks["ball"].append({})
-            # for each track of each frame
-
-            for frame_detection in detection_with_tracks:
-                bbox = frame_detection[0].tolist()
-                cls_id = frame_detection[3]
-
-            print(detection_with_tracks)
-
-            break
-
-    def draw_ellipse(self, frame, bbox, color, track_id):
-        y2 = int(bbox[3])
-        x_center, _ = get_bbox_center(bbox)
-        width = get_bbox_width(bbox)
-        cv2.ellipse(
-            frame,
-            center=(x_center, y2),
-            axes=(int(width), int(0.35 * width)),
-            angle=0.0,
-            startAngle=-45,
-            endAngle=235,
-            color=color,
-            thickness=2,
-            lineType=cv2.LINE_4,
-        )
-
-        return frame
 
     def draw_annotations(self, video_frames, tracks):
         output_video_frames = []
