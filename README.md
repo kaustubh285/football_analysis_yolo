@@ -8,6 +8,9 @@ This project uses machine learning, computer vision, and deep learning technique
 4. Analyze ball possession and control by assigning the ball to the closest player.
 5. Annotate output video with player IDs, teams, ball possession, and other relevant information.
 
+Example output :
+![Example](https://github.com/kaustubh285/football_analysis_yolo/blob/main/example_output/output.png?raw=true)
+
 ## Installation & Setup
 
 1. Clone the repository
