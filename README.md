@@ -16,7 +16,7 @@ Example output :
 1. Clone the repository
 2. Install required dependencies: `pip install -r requirements.txt`
 3. Train your model using the training notebook provided
-4. Download the model weights and store in models folder
+4. Download the model pt file and store in models folder
 5. Store the video to be analysed in the input folder
 
 ## Usage
@@ -27,7 +27,7 @@ To run the analysis pipeline:
 python main.py
 ```
 
-This will process the specified input video, perform analysis, and generate an annotated output video in the output folder.
+This will process the specified input video, perform analysis, and generate an annotated output video in the output folder. If the video has been processed before, the code will use the previously generated pickle file to save time, instead of reprocessing the video from scratch.
 
 ## Project Structure
 
@@ -45,7 +45,7 @@ This will process the specified input video, perform analysis, and generate an a
 - `input/`: Directory for input video files.
 - `output/`: Directory for annotated output videos.
 - `models/`: Directory for storing trained models.
-- `stubs/`: Directory for storing pre-computed tracking data (optional).
+- `stubs/`: Directory for storing pre-computed tracking data. This is where the pkl files generated for a video are stored. If a new input with same filename is given, instead of computing the tracking data again, it uses the pkl files. (Can be turned off by setting "read_from_stub=False" in main.py)
 - `development_and_analysis/`: Contains notebooks for testing and analysis.
   - `color_assignment.ipynb`
 - `training/`: Contains model training notebook to be used separately from the project to generate weights of the model.

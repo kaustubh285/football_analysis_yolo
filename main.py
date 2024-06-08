@@ -7,13 +7,15 @@ import time
 
 
 def main():
-    file_name = "08fd33_4_short"
-    file_name = "08fd33_4_full"
-    video_frames, fps = read_video(f"input/{file_name}.mp4")
+    file_name = "football_match_1"
     tracker = Tracker("models/medium/best.pt")
+    read_from_stub = True
+    stub_path = f"stubs/{file_name}.pkl"
+    output_path = f"output/{file_name}.avi"
 
+    video_frames, fps = read_video(f"input/{file_name}.mp4")
     tracks = tracker.get_object_trac(
-        video_frames, read_from_stub=True, stub_path=f"stubs/{file_name}.pkl"
+        video_frames, read_from_stub=read_from_stub, stub_path=stub_path
     )
 
     # fill missing ball positions
@@ -56,7 +58,7 @@ def main():
         video_frames, tracks, team_ball_control
     )
 
-    save_video(output_video_frames, fps, f"output/{file_name}.avi")
+    save_video(output_video_frames, fps, output_path)
 
 
 if __name__ == "__main__":
