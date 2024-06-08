@@ -168,7 +168,55 @@ class Tracker:
 
         return frame
 
-    def draw_annotations(self, video_frames, tracks):
+    def draw_team_controlling_ball(self, frame, frame_num, team_ball_control):
+        # Draw semi transparent rect
+        overlay = frame.copy()
+
+        cv2.rectangle(
+            overlay,
+            (1350, 850),
+            (1900, 970),
+            (255, 255, 255),
+            -1,
+        )
+        alpha = 0.4
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+
+        # Calc perfectage a team has the ball
+        team_ball_control_till_frame = team_ball_control[: frame_num + 1]
+        team_1_num_frames = team_ball_control_till_frame[
+            team_ball_control_till_frame == 1
+        ].shape[0]
+        team_2_num_frames = team_ball_control_till_frame[
+            team_ball_control_till_frame == 2
+        ].shape[0]
+
+        team_1_control = team_1_num_frames / (team_1_num_frames + team_2_num_frames)
+        team_2_control = team_2_num_frames / (team_1_num_frames + team_2_num_frames)
+
+        cv2.putText(
+            frame,
+            f"Team 1 possesion:{team_1_control*100:.2f}%",
+            (1400, 900),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 0),
+            2,
+        )
+
+        cv2.putText(
+            frame,
+            f"Team 2 possesion:{team_2_control*100:.2f}%",
+            (1400, 950),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 0),
+            2,
+        )
+
+        return frame
+
+    def draw_annotations(self, video_frames, tracks, team_ball_control):
         output_video_frames = []
 
         for frame_num, frame in enumerate(video_frames):
@@ -192,6 +240,10 @@ class Tracker:
                     frame = self.draw_triangle(frame, ball["bbox"], (255, 0, 0))
                 except:
                     print(ball)
+
+            # Draw team controlling the ball
+
+            frame = self.draw_team_controlling_ball(frame, frame_num, team_ball_control)
 
             output_video_frames.append(frame)
             # Ball pointer
